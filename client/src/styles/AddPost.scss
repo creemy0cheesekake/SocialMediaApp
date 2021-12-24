@@ -1,0 +1,30 @@
+@use "./variables" as var;
+
+.AddPost {
+	width: 100%;
+	display: flex;
+	margin-top: 20px;
+	img {
+		height: 3em;
+		width: auto;
+		border-radius: 9999px;
+	}
+	textarea {
+		margin-left: 20px;
+		height: 1.65em;
+		border-radius: 0;
+		position: relative;
+		flex: 1;
+		outline: 0;
+		// border-top: 2px solid var.$tertiary;
+		border: 0;
+		border-bottom: 2px solid var.$tertiary;
+		background-color: transparent;
+		color: var.$tertiary;
+		font-size: 1.5em;
+		resize: none;
+	}
+	button {
+		align-self: flex-end;
+	}
+}

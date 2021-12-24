@@ -13,6 +13,7 @@ html {
 
 input {
 	border-radius: 1em;
+	border: 0;
 }
 
 button {
@@ -30,4 +31,19 @@ button {
 	.actionItems {
 		align-self: center;
 	}
+}
+
+.row {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: 100%;
+	justify-content: center;
+}
+
+.column {
+	display: flex;
+	flex-direction: column;
+	flex-basis: 100%;
+	flex: 1;
 }

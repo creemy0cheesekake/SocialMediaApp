@@ -1,0 +1,11 @@
+@use "./variables" as var;
+
+.HomePage {
+	display: flex;
+	.middle {
+		padding: 0 10px;
+		border-left: 2px solid var.$secondary;
+		border-right: 2px solid var.$secondary;
+		height: 80vh;
+	}
+}

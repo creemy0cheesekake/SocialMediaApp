@@ -3,7 +3,7 @@ import NavBar from "./NavBar";
 
 interface Props {}
 
-const HomePage: React.FC = (props: Props) => {
+const HomePage: React.FC<Props> = (props: Props) => {
 	return (
 		<div>
 			<NavBar />

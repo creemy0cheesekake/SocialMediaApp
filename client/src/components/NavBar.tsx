@@ -3,7 +3,7 @@ import "../styles/NavBar.scss";
 
 interface Props {}
 
-const NavBar: React.FC = (props: Props) => {
+const NavBar: React.FC<Props> = (props: Props) => {
 	return (
 		<div className="NavBar">
 			<h1>[Logo]</h1>

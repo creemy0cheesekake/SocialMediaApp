@@ -1,0 +1,31 @@
+@use "./variables" as var;
+@use "sass:math";
+
+* {
+	font-family: "Roboto", sans-serif;
+}
+
+html {
+	background-color: var.$primary;
+}
+
+input {
+	border-radius: 1em;
+}
+
+button {
+	background-color: var.$accent;
+	border: none;
+	border-radius: 10px;
+	padding: 10px 20px;
+	border: 0.3em solid var.$accent;
+	margin: 10px;
+	transition: 0.2s;
+	&:hover {
+		background-color: inherit;
+		color: var.$accent;
+	}
+	.actionItems {
+		align-self: center;
+	}
+}

@@ -1,7 +1,9 @@
 import React from "react";
 import "../styles/AuthPages.scss";
 
-const SignUp = () => {
+interface Props {}
+
+const SignUp = (props: Props) => {
 	return (
 		<div className="auth-container">
 			<div className="auth-content">

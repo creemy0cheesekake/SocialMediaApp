@@ -1,7 +1,9 @@
 import React from "react";
 import NavBar from "./NavBar";
 
-const HomePage = () => {
+interface Props {}
+
+const HomePage = (props: Props) => {
 	return (
 		<div>
 			<NavBar />

@@ -1,7 +1,9 @@
 import React from "react";
 import "../styles/NavBar.scss";
 
-const NavBar = () => {
+interface Props {}
+
+const NavBar = (props: Props) => {
 	return (
 		<div className="NavBar">
 			<h1>[Logo]</h1>

@@ -1,0 +1,26 @@
+@use "./variables" as var;
+
+.NavBar {
+	width: 100vw;
+	background-color: var.$secondary;
+	display: flex;
+	justify-content: space-between;
+	box-sizing: border-box;
+	padding: 10px;
+	box-shadow: 0 0 2px 1px rgba(0, 0, 0, 0.5);
+}
+
+.NavBar-links {
+	margin: 20px;
+	a {
+		margin: 10px;
+		text-decoration: none;
+		color: black;
+		padding: 10px;
+		border-radius: 9999999px;
+		transition: background-color 0.25s;
+		&:hover {
+			background-color: var.$tertiary;
+		}
+	}
+}

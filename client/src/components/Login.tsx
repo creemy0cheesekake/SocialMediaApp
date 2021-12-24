@@ -3,7 +3,7 @@ import "../styles/AuthPages.scss";
 
 interface Props {}
 
-const Login = (props: Props) => {
+const Login: React.FC = (props: Props) => {
 	return (
 		<div className="auth-container">
 			<div className="auth-content">

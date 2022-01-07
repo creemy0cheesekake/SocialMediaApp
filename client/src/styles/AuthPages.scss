@@ -55,3 +55,14 @@ html {
 		font-size: large;
 	}
 }
+
+.error-message {
+	color: white;
+	padding: 0.25em;
+	margin: 10px;
+	max-width: max(25vw, 350px);
+	padding-inline: 10px;
+	border-radius: 0.75rem;
+	text-align: center;
+	font-size: 1.25rem;
+}

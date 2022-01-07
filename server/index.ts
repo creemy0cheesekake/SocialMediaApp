@@ -3,17 +3,15 @@ import mongoose from "mongoose";
 import session from "express-session";
 import router from "./routes/authRoutes";
 import ConnectMongoDBSession from "connect-mongodb-session";
-import { urlencoded } from "body-parser";
+import bodyParser from "body-parser";
+import cors from "cors";
 const MongoDBSession = ConnectMongoDBSession(session);
 
 const mongoURI = "mongodb://localhost/socialmediaappdb";
 
 const app = express();
-app.use(
-	urlencoded({
-		extended: true,
-	})
-);
+app.use(bodyParser.json());
+app.use(cors());
 
 const store = new MongoDBSession({
 	uri: mongoURI,

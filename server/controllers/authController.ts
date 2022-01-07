@@ -7,13 +7,12 @@ export const createNewUser = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
-	console.log(req.body);
-	// @ts-ignore error "Property 'isLoggedIn' does not exist on type 'Session & Partial<SessionData>'." is not correct
-	req.session.isLoggedIn = true;
 	try {
-		const username: string = "bob";
-		const email: string = "bob@bob.com";
-		const password: string = "bOb123!!!!";
+		const {
+			usernameVal: username,
+			emailVal: email,
+			passwordVal: password,
+		} = req.body;
 
 		if (!validator.isStrongPassword(password))
 			throw new Error(
@@ -32,9 +31,15 @@ export const createNewUser = async (
 			email,
 			hashedPassword,
 		});
-		res.send("user created successfully");
+		res.json({
+			success: true,
+			message: "user created successfully",
+		});
 	} catch (err: any) {
-		res.send(err.message);
+		res.json({
+			success: false,
+			message: err.message,
+		});
 	}
 };
 

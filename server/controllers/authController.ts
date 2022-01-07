@@ -33,7 +33,7 @@ export const createNewUser = async (
 		});
 		res.json({
 			success: true,
-			message: "user created successfully",
+			message: "User created successfully.",
 		});
 	} catch (err: any) {
 		res.json({

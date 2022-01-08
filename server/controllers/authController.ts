@@ -43,15 +43,31 @@ export const createNewUser = async (
 	}
 };
 
-export const logInUser = async (
-	req: Request,
-	res: Response
-): Promise<boolean> => {
-	const usernameOrEmail: string = "bob";
-	const password: string = "bOb123!!!!";
+export const logInUser = async (req: Request, res: Response): Promise<void> => {
+	// default loggedIn to false so if it doesnt make it to the end of the try block it'll be false
+	let loggedIn = false;
+	let message;
+	try {
+		// Get user's inputted username/email and password
+		const { usernameOrEmailVal: usernameOrEmail, passwordVal: password } =
+			req.body;
 
-	const user: any = await User.findOne({
-		$or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+		// find user containing that username/email in the db
+		const user: any = await User.findOne({
+			$or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
+		});
+		// if user doesnt exist throw error
+		if (!user) throw new Error("User not found.");
+
+		// log in user with inputted password
+		loggedIn = await comparePassword(password, user.hashedPassword);
+		if (loggedIn) message = "User logged in successfully.";
+		else throw new Error("Incorrect password.");
+	} catch (err: any) {
+		message = err.message;
+	}
+	res.json({
+		success: loggedIn,
+		message,
 	});
-	return comparePassword(password, user.hashedPassword);
 };

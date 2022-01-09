@@ -13,7 +13,7 @@ const Login: React.FC<Props> = (props: Props) => {
 		setStatusMessageColor("#dd4444");
 		setStatusMessage("");
 		const data = await (
-			await fetch("http://localhost:3000/login", {
+			await fetch(process.env.REACT_APP_API_DOMAIN_NAME + "/login", {
 				method: "POST",
 				body: JSON.stringify({
 					usernameOrEmailVal,

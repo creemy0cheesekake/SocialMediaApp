@@ -1,4 +1,4 @@
-import React, { useState, createRef } from "react";
+import React, { useState } from "react";
 import "../styles/AuthPages.scss";
 
 interface Props {}
@@ -9,11 +9,11 @@ const SignUp: React.FC<Props> = (props: Props) => {
 	const [passwordVal, setPasswordVal] = useState("");
 	const [confirmPasswordVal, setConfirmPasswordVal] = useState("");
 	const [statusMessage, setStatusMessage] = useState("");
-
-	const statusMessageRef: any = createRef();
+	const [statusMessageColor, setStatusMessageColor] = useState("");
 
 	const handleSubmitForm = async () => {
-		statusMessageRef.current.style.backgroundColor = "#dd4444";
+		setStatusMessageColor("#dd4444");
+		setStatusMessage("");
 		if (passwordVal !== confirmPasswordVal)
 			return setStatusMessage("Passwords do not match.");
 		const data = await (
@@ -30,12 +30,17 @@ const SignUp: React.FC<Props> = (props: Props) => {
 			})
 		).json();
 		setStatusMessage(data.message);
-		if (data.success)
-			statusMessageRef.current.style.backgroundColor = "#407540";
+		if (data.success) setStatusMessageColor("#407540");
 	};
 	return (
 		<div className="auth-container column">
-			<div className="error-message" ref={statusMessageRef}>
+			<div
+				className="error-message"
+				style={{
+					backgroundColor: statusMessageColor,
+					visibility: statusMessage.length ? "visible" : "hidden",
+				}}
+			>
 				{statusMessage}
 			</div>
 			<div className="auth-content">

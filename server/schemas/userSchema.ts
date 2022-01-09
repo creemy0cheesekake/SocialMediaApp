@@ -16,6 +16,8 @@ const userSchema = new mongoose.Schema({
 		type: String,
 		required: true,
 	},
+	resetId: String,
+	resetIdExpiration: Date,
 });
 
 export default mongoose.model("User", userSchema);

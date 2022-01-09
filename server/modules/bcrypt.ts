@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 
-const SALT_ROUNDS = 12;
-
 export const hashPassword = async (password: string) => {
-	const salt = await bcrypt.genSalt(SALT_ROUNDS);
+	const salt = await bcrypt.genSalt(
+		parseInt(<string>process.env.BCRYPT_SALT_ROUNDS)
+	);
 	return bcrypt.hash(password, salt);
 };
 

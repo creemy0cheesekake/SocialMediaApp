@@ -2,23 +2,28 @@ import User from "../schemas/userSchema";
 import { hashPassword, comparePassword } from "../modules/bcrypt";
 import validator from "validator";
 import { Request, Response } from "express";
+import nodemailer from "nodemailer";
+import crypto from "crypto";
 
 export const createNewUser = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
 	try {
+		// get username email and password from data sent from client
 		const {
 			usernameVal: username,
 			emailVal: email,
 			passwordVal: password,
 		} = req.body;
 
+		// throws error if password isnt strong enough
 		if (!validator.isStrongPassword(password))
 			throw new Error(
 				"Password must be at least 8 characters long, and must contain a lowercase letter, upper case letter, number, and a special character."
 			);
 
+		// throws error if the username or email already exist
 		if (!!(await User.findOne({ username: { $eq: username } })))
 			throw new Error("Username already exists.");
 		if (!!(await User.findOne({ email: { $eq: email } })))
@@ -26,6 +31,7 @@ export const createNewUser = async (
 
 		const hashedPassword = await hashPassword(password);
 
+		// stores user in db
 		await User.create({
 			username,
 			email,
@@ -71,3 +77,57 @@ export const logInUser = async (req: Request, res: Response): Promise<void> => {
 		message,
 	});
 };
+
+export const passwordReset = async (req: Request, res: Response) => {
+	try {
+		// create and add password reset id to user to include in reset link
+		// generate id
+		const id = crypto.randomBytes(20).toString("hex");
+		const user = await User.findOne({ email: req.body.recipient });
+		user.resetId = id;
+
+		// gets date x minutes in future, which will be set as the expiration time for the reset link.
+		const getDateByMinutesInFuture = (minutesInFuture: number) => {
+			const date = new Date();
+			date.setMinutes(date.getMinutes() + minutesInFuture);
+			return date;
+		};
+
+		// set expiration date
+		user.resetIdExpiration = getDateByMinutesInFuture(30);
+
+		// create email transporter
+		const transporter = nodemailer.createTransport({
+			service: "gmail",
+			auth: {
+				user: process.env.EMAIL_ADDRESS,
+				pass: process.env.EMAIL_PASSWORD,
+			},
+		});
+
+		const resetLink = "placeholder";
+
+		// send email
+		await transporter.sendMail({
+			from: `"Social Media App" <${process.env.EMAIL_ADDRESS}>`,
+			to: req.body.recipient || "arjunanand1405@gmail.com",
+			subject: "Social Media App password reset",
+			html: `<h3>Click the following link to reset your password</h3><br><a href='${resetLink}'>Click this to reset your password</a><br><br><br><p>If you never requested a password reset, you can safely disregard this email and delete it.</p>`,
+		});
+		res.json({
+			success: true,
+			message: `Email  to ${req.body.recipient} sent successfully.`,
+		});
+	} catch (err: any) {
+		res.json({
+			success: false,
+			message: `Email  failed. ${err.message}`,
+		});
+	}
+};
+/*
+// export const updatePassword = async (req: Request, res: Response) => {
+// 	try {
+// 	} catch (err) {}
+// };
+*/

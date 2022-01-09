@@ -4,25 +4,26 @@ import "../styles/AuthPages.scss";
 interface Props {}
 
 const Login: React.FC<Props> = (props: Props) => {
-	const [usernameOrEmailVal, setUsernameOrEmailVal] = useState("");
-	const [passwordVal, setPasswordVal] = useState("");
+	const [emailVal, setEmailVal] = useState("");
 	const [statusMessage, setStatusMessage] = useState("");
 	const [statusMessageColor, setStatusMessageColor] = useState("");
 
-	const handleLogin = async () => {
+	const handleSendEmail = async () => {
 		setStatusMessageColor("#786428");
 		setStatusMessage("Loading...");
 		const data = await (
-			await fetch(process.env.REACT_APP_API_DOMAIN_NAME + "/login", {
-				method: "POST",
-				body: JSON.stringify({
-					usernameOrEmailVal,
-					passwordVal,
-				}),
-				headers: {
-					"Content-Type": "application/json",
-				},
-			})
+			await fetch(
+				process.env.REACT_APP_API_DOMAIN_NAME + "/sendResetEmail",
+				{
+					method: "POST",
+					body: JSON.stringify({
+						recipient: emailVal,
+					}),
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			)
 		).json();
 		setStatusMessage(data.message);
 		if (data.success) setStatusMessageColor("#407540");
@@ -42,25 +43,20 @@ const Login: React.FC<Props> = (props: Props) => {
 			</div>
 			<div className="auth-content">
 				<div className="auth-header">
-					<h1>Log In</h1>
+					<h1>Reset Password</h1>
 				</div>
 				<div className="auth-forms">
-					<label htmlFor="email-or-username">Email or Username</label>
+					<label htmlFor="email">
+						Enter email associated with your account. You will
+						receive a reset password link in your inbox.
+					</label>
 					<input
-						type="text"
-						name="email-or-username"
-						value={usernameOrEmailVal}
-						onChange={e => setUsernameOrEmailVal(e.target.value)}
+						type="email"
+						name="email"
+						value={emailVal}
+						onChange={e => setEmailVal(e.target.value)}
 					/>
-					<label htmlFor="password">Password</label>
-					<input
-						type="password"
-						name="password"
-						value={passwordVal}
-						onChange={e => setPasswordVal(e.target.value)}
-					/>
-					<button onClick={handleLogin}>Create Account</button>
-					<a href=".auth-forms">Already have an account? Log in</a>
+					<button onClick={handleSendEmail}>Send Email</button>
 				</div>
 			</div>
 		</div>

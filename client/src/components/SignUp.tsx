@@ -12,12 +12,12 @@ const SignUp: React.FC<Props> = (props: Props) => {
 	const [statusMessageColor, setStatusMessageColor] = useState("");
 
 	const handleSubmitForm = async () => {
-		setStatusMessageColor("#dd4444");
-		setStatusMessage("");
+		setStatusMessageColor("#786428");
+		setStatusMessage("Loading...");
 		if (passwordVal !== confirmPasswordVal)
 			return setStatusMessage("Passwords do not match.");
 		const data = await (
-			await fetch("http://localhost:3000/register", {
+			await fetch(process.env.REACT_APP_API_DOMAIN_NAME + "/register", {
 				method: "POST",
 				body: JSON.stringify({
 					usernameVal,
@@ -31,6 +31,7 @@ const SignUp: React.FC<Props> = (props: Props) => {
 		).json();
 		setStatusMessage(data.message);
 		if (data.success) setStatusMessageColor("#407540");
+		else setStatusMessageColor("#dd4444");
 	};
 	return (
 		<div className="auth-container column">

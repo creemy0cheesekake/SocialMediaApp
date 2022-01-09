@@ -84,6 +84,7 @@ export const passwordReset = async (req: Request, res: Response) => {
 		// generate id
 		const id = crypto.randomBytes(20).toString("hex");
 		const user = await User.findOne({ email: req.body.recipient });
+		if (!user) throw new Error("User not found: " + req.body.recipient);
 		user.resetId = id;
 
 		// gets date x minutes in future, which will be set as the expiration time for the reset link.
@@ -94,7 +95,13 @@ export const passwordReset = async (req: Request, res: Response) => {
 		};
 
 		// set expiration date
-		user.resetIdExpiration = getDateByMinutesInFuture(30);
+		const LINK_VALID_FOR_X_MINUTES = 5;
+		user.resetIdExpiration = getDateByMinutesInFuture(
+			LINK_VALID_FOR_X_MINUTES
+		);
+
+		// save changes to user
+		await user.save();
 
 		// create email transporter
 		const transporter = nodemailer.createTransport({
@@ -105,29 +112,63 @@ export const passwordReset = async (req: Request, res: Response) => {
 			},
 		});
 
-		const resetLink = "placeholder";
+		const resetLink = `${
+			process.env.CLIENT_DOMAIN_NAME
+		}/reset-password?sid=${user.resetId}&id=${user._id.toString()}`;
 
 		// send email
 		await transporter.sendMail({
 			from: `"Social Media App" <${process.env.EMAIL_ADDRESS}>`,
-			to: req.body.recipient || "arjunanand1405@gmail.com",
+			to: req.body.recipient,
 			subject: "Social Media App password reset",
-			html: `<h3>Click the following link to reset your password</h3><br><a href='${resetLink}'>Click this to reset your password</a><br><br><br><p>If you never requested a password reset, you can safely disregard this email and delete it.</p>`,
+			html: `<h3>Click the following link to reset your password. This link will be valid for ${LINK_VALID_FOR_X_MINUTES} minutes.</h3><br><a href='${resetLink}'>Click this to reset your password</a><br><br><br><p>If you never requested a password reset, you can safely disregard this email and delete it.</p>`,
 		});
 		res.json({
 			success: true,
 			message: `Email  to ${req.body.recipient} sent successfully.`,
 		});
 	} catch (err: any) {
-		res.json({
+		res.status(404).json({
 			success: false,
-			message: `Email  failed. ${err.message}`,
+			message: `Error: ${err.message}`,
 		});
 	}
 };
-/*
-// export const updatePassword = async (req: Request, res: Response) => {
-// 	try {
-// 	} catch (err) {}
-// };
-*/
+
+export const updatePassword = async (req: Request, res: Response) => {
+	try {
+		// this boolean will check whether or not the link is expired or if the user modified the link for some reason.
+		const user = await User.findById(req.body.id);
+
+		if (!user)
+			throw new Error(
+				"There was some error. Try clicking the link again or receiving a new link."
+			);
+		if (user.resetId !== req.body.sid)
+			throw new Error(
+				"There was some error. Try clicking the link again or receiving a new link."
+			);
+
+		// if the links expiration time has passed already
+		if (new Date(new Date().toISOString()) > user.resetIdExpiration)
+			throw new Error("Sorry, the link has expired.");
+
+		// update password
+		user.hashedPassword = await hashPassword(req.body.newPassword);
+
+		// deleting resetId and expiration until next time the user wants to reset their password, which means this current link is now useless
+		user.resetId = undefined;
+		user.resetIdExpiration = undefined;
+		user.save();
+
+		res.status(200).json({
+			success: true,
+			message: "Your password has been updated.",
+		});
+	} catch (err: any) {
+		res.status(404).json({
+			success: false,
+			message: err.message,
+		});
+	}
+};

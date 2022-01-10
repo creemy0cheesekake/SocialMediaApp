@@ -78,7 +78,7 @@ const SignUp: React.FC<Props> = (props: Props) => {
 						onChange={e => setConfirmPasswordVal(e.target.value)}
 					/>
 					<button onClick={handleSubmitForm}>Create Account</button>
-					<a href=".auth-forms">Already have an account? Log in</a>
+					<a href="/login">Already have an account? Log in</a>
 				</div>
 			</div>
 		</div>

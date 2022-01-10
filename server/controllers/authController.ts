@@ -136,10 +136,8 @@ export const passwordReset = async (req: Request, res: Response) => {
 };
 
 export const updatePassword = async (req: Request, res: Response) => {
+	const user = await User.findById(req.body.id);
 	try {
-		// this boolean will check whether or not the link is expired or if the user modified the link for some reason.
-		const user = await User.findById(req.body.id);
-
 		if (!user)
 			throw new Error(
 				"There was some error. Try clicking the link again or receiving a new link."
@@ -156,11 +154,6 @@ export const updatePassword = async (req: Request, res: Response) => {
 		// update password
 		user.hashedPassword = await hashPassword(req.body.newPassword);
 
-		// deleting resetId and expiration until next time the user wants to reset their password, which means this current link is now useless
-		user.resetId = undefined;
-		user.resetIdExpiration = undefined;
-		user.save();
-
 		res.status(200).json({
 			success: true,
 			message: "Your password has been updated.",
@@ -171,4 +164,8 @@ export const updatePassword = async (req: Request, res: Response) => {
 			message: err.message,
 		});
 	}
+	// deleting resetId and expiration until next time the user wants to reset their password, which means this current link is now useless
+	user.resetId = undefined;
+	user.resetIdExpiration = undefined;
+	user.save();
 };

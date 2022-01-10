@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import "../styles/AuthPages.scss";
+import { authContext } from "../contexts/authContext";
+import { useNavigate } from "react-router-dom";
 
 interface Props {}
 
@@ -8,6 +10,8 @@ const Login: React.FC<Props> = (props: Props) => {
 	const [passwordVal, setPasswordVal] = useState("");
 	const [statusMessage, setStatusMessage] = useState("");
 	const [statusMessageColor, setStatusMessageColor] = useState("");
+	const { setLoggedIn } = useContext(authContext);
+	const navigate = useNavigate();
 
 	const handleLogin = async () => {
 		setStatusMessageColor("#786428");
@@ -25,8 +29,11 @@ const Login: React.FC<Props> = (props: Props) => {
 			})
 		).json();
 		setStatusMessage(data.message);
-		if (data.success) setStatusMessageColor("#407540");
-		else setStatusMessageColor("#dd4444");
+		if (data.success) {
+			setStatusMessageColor("#407540");
+			setLoggedIn(true);
+			navigate("/");
+		} else setStatusMessageColor("#dd4444");
 	};
 
 	return (
@@ -59,8 +66,9 @@ const Login: React.FC<Props> = (props: Props) => {
 						value={passwordVal}
 						onChange={e => setPasswordVal(e.target.value)}
 					/>
-					<button onClick={handleLogin}>Create Account</button>
-					<a href=".auth-forms">Already have an account? Log in</a>
+					<button onClick={handleLogin}>Log in</button>
+					<a href="/register">Don't have an account? Sign up</a>
+					<a href="/reset">Forgot your password?</a>
 				</div>
 			</div>
 		</div>

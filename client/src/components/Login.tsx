@@ -1,6 +1,5 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import "../styles/AuthPages.scss";
-import { authContext } from "../contexts/authContext";
 import { useNavigate } from "react-router-dom";
 
 interface Props {}
@@ -10,7 +9,6 @@ const Login: React.FC<Props> = (props: Props) => {
 	const [passwordVal, setPasswordVal] = useState("");
 	const [statusMessage, setStatusMessage] = useState("");
 	const [statusMessageColor, setStatusMessageColor] = useState("");
-	const { setLoggedIn } = useContext(authContext);
 	const navigate = useNavigate();
 
 	const handleLogin = async () => {
@@ -19,6 +17,7 @@ const Login: React.FC<Props> = (props: Props) => {
 		const data = await (
 			await fetch(process.env.REACT_APP_API_DOMAIN_NAME + "/login", {
 				method: "POST",
+				credentials: "include",
 				body: JSON.stringify({
 					usernameOrEmailVal,
 					passwordVal,
@@ -31,7 +30,6 @@ const Login: React.FC<Props> = (props: Props) => {
 		setStatusMessage(data.message);
 		if (data.success) {
 			setStatusMessageColor("#407540");
-			setLoggedIn(true);
 			navigate("/");
 		} else setStatusMessageColor("#dd4444");
 	};

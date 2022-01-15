@@ -4,6 +4,7 @@ import validator from "validator";
 import { Request, Response } from "express";
 import nodemailer from "nodemailer";
 import crypto from "crypto";
+import jwt from "jsonwebtoken";
 
 export const createNewUser = async (
 	req: Request,
@@ -53,13 +54,14 @@ export const logInUser = async (req: Request, res: Response): Promise<void> => {
 	// default loggedIn to false so if it doesnt make it to the end of the try block it'll be false
 	let loggedIn = false;
 	let message;
+	let user;
 	try {
 		// Get user's inputted username/email and password
 		const { usernameOrEmailVal: usernameOrEmail, passwordVal: password } =
 			req.body;
 
 		// find user containing that username/email in the db
-		const user: any = await User.findOne({
+		user = await User.findOne({
 			$or: [{ username: usernameOrEmail }, { email: usernameOrEmail }],
 		});
 		// if user doesnt exist throw error
@@ -67,14 +69,25 @@ export const logInUser = async (req: Request, res: Response): Promise<void> => {
 
 		// log in user with inputted password
 		loggedIn = await comparePassword(password, user.hashedPassword);
-		if (loggedIn) message = "User logged in successfully.";
-		else throw new Error("Incorrect password.");
+		if (loggedIn) {
+			message = "User logged in successfully.";
+			const token = jwt.sign(
+				{ id: user._id, username: user.username },
+				process.env.JWT_KEY!
+			);
+			res.cookie("LOGIN", token, {
+				maxAge: 3 * 24 * 60 * 60 * 1000,
+				httpOnly: true,
+				sameSite: "lax",
+			});
+		} else throw new Error("Incorrect password.");
 	} catch (err: any) {
 		message = err.message;
 	}
 	res.json({
 		success: loggedIn,
 		message,
+		username: user.username,
 	});
 };
 
@@ -168,4 +181,37 @@ export const updatePassword = async (req: Request, res: Response) => {
 	user.resetId = undefined;
 	user.resetIdExpiration = undefined;
 	user.save();
+};
+
+export const requireAuth = (req: Request, res: Response) => {
+	try {
+		const token = req.cookies.LOGIN;
+		if (token) {
+			jwt.verify(
+				token,
+				process.env.JWT_KEY!,
+				(err: any, decodedToken: any) => {
+					if (err) {
+						throw err;
+					} else {
+						res.send({
+							validCookie: true,
+							token: decodedToken,
+						});
+					}
+				}
+			);
+		} else throw new Error("no LOGIN token found");
+	} catch (err: any) {
+		console.error(err);
+		res.send({
+			validCookie: false,
+			error: err.message,
+		});
+	}
+};
+
+export const logOut = (req: Request, res: Response) => {
+	res.cookie("LOGIN", "", { maxAge: 1, sameSite: "lax" });
+	res.send("logged out");
 };
